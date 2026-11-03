@@ -1,38 +1,46 @@
 
-import subprocess
 import os
+import subprocess
 
 def run_command(command: str, directory: str = './') -> str:
     """
-        Execute a CMD command in windows in the specified directory.
+    Execute a Windows CMD command and return its actual output.
     """
-    if directory == '' or not directory:
+    if not directory:
         directory = "./"
-    
+
     try:
         if not os.path.isdir(directory):
             return "Error: Directory does not exist"
 
-        process = subprocess.Popen(
+        process = subprocess.run(
             ["cmd.exe", "/c", command],
-            cwd=directory
+            cwd=directory,
+            capture_output=True,
+            text=True,
+            timeout=60,
+            encoding="utf-8",
+            errors="replace"
         )
 
-        return f"Command started in visible CMD. PID: {process.pid}"
+        output = process.stdout.strip()
+        error = process.stderr.strip()
+
+        result = []
+
+        if output:
+            result.append(output)
+
+        if error:
+            result.append(f"STDERR:\n{error}")
+
+        if process.returncode != 0:
+            result.append(f"Exit code: {process.returncode}")
+
+        return "\n".join(result) if result else "Command executed successfully (no output)."
 
     except subprocess.TimeoutExpired:
         return "Error: Command timed out after 60 seconds."
-    
+
     except Exception as e:
         return f"Execution error: {e}"
-
-    if not os.path.isdir(directory):
-        return "Invalid directory"
-
-    subprocess.Popen(
-        ["cmd.exe", "/K"],
-        cwd=directory,
-        creationflags=subprocess.CREATE_NEW_CONSOLE
-    )
-
-    return "User terminal opened."

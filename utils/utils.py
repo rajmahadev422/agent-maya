@@ -1,7 +1,7 @@
 from pathlib import Path
 import json
-
-from utils.config import MAYA_DIR
+from utils.all_tools import available_functions
+from config import MAYA_DIR
 
 # Maya internal data directory
 DATA_DIR = MAYA_DIR / "data"
@@ -63,3 +63,14 @@ def load_messages(system_prompt, file_path=None):
     except (json.JSONDecodeError, OSError) as e:
         print("Load error:", e)
         return [{"role": "system", "content": system_prompt}]
+    
+def execute_tool(tool_name: str, arguments: dict):
+    function = available_functions.get(tool_name)
+
+    if not function:
+        return f"Error: Unknown tool: {tool_name}"
+
+    try:
+        return function(**arguments)
+    except Exception as e:
+        return f"Tool execution error: {e}"

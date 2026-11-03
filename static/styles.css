@@ -1,0 +1,413 @@
+:root {
+    --bg: #f1f3f5;
+    --panel: #fff;
+    --line: #d9dee4;
+    --ink: #1b2230;
+    --mute: #66707f;
+    --maya: #0b7a86;
+    --you: #2c7a4b;
+    --think: #6a5bb0;
+    --tool: #9a5f00;
+    --tint: #e8ecf0;
+    --err: #c0392b;
+    --sans: "IBM Plex Sans", system-ui, sans-serif;
+    --mono: "IBM Plex Mono", ui-monospace, monospace
+}
+
+@media(prefers-color-scheme:dark) {
+    :root {
+        --bg: #12161c;
+        --panel: #181e26;
+        --line: #2a323d;
+        --ink: #e4e8ee;
+        --mute: #8b95a5;
+        --maya: #4fc3cf;
+        --you: #6fcf97;
+        --think: #a99bf0;
+        --tool: #e0a537;
+        --tint: #202833;
+        --err: #ff7b6b
+    }
+}
+
+* {
+    box-sizing: border-box
+}
+
+html,
+body {
+    height: 100%;
+    margin: 0
+}
+
+body {
+    font: 15px/1.55 var(--sans);
+    background: var(--bg);
+    color: var(--ink);
+    display: grid;
+    grid-template-columns: 272px 1fr
+}
+
+button {
+    font: inherit;
+    color: inherit
+}
+
+:focus-visible {
+    outline: 2px solid var(--maya);
+    outline-offset: 2px
+}
+
+aside {
+    background: var(--panel);
+    border-right: 1px solid var(--line);
+    display: flex;
+    flex-direction: column;
+    min-height: 0
+}
+
+.brand {
+    padding: 18px 16px 10px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center
+}
+
+.brand b {
+    font-size: 20px;
+    font-weight: 600;
+    color: var(--maya)
+}
+
+.btn {
+    border: 1px solid var(--line);
+    background: none;
+    border-radius: 6px;
+    padding: 5px 10px;
+    cursor: pointer
+}
+
+.btn:hover {
+    background: var(--tint)
+}
+
+#list {
+    overflow: auto;
+    padding: 4px 8px;
+    flex: 1
+}
+
+.chat {
+    display: block;
+    width: 100%;
+    text-align: left;
+    background: none;
+    border: 0;
+    border-radius: 6px;
+    padding: 8px 10px;
+    cursor: pointer
+}
+
+.chat:hover,
+.chat.on {
+    background: var(--tint)
+}
+
+.chat.on {
+    box-shadow: inset 3px 0 var(--maya)
+}
+
+.chat .t {
+    display: block;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis
+}
+
+.chat .m {
+    display: block;
+    font-size: 12px;
+    color: var(--mute)
+}
+
+.dir {
+    padding: 10px 16px;
+    border-top: 1px solid var(--line);
+    font: 11px var(--mono);
+    color: var(--mute);
+    overflow-wrap: anywhere
+}
+
+main {
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
+    min-width: 0
+}
+
+header {
+    padding: 12px 24px;
+    border-bottom: 1px solid var(--line);
+    background: var(--panel);
+    display: flex;
+    gap: 12px;
+    align-items: center
+}
+
+header h1 {
+    font-size: 15px;
+    font-weight: 500;
+    margin: 0;
+    flex: 1;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis
+}
+
+header code {
+    font: 12px var(--mono);
+    color: var(--mute);
+    border: 1px solid var(--line);
+    border-radius: 4px;
+    padding: 2px 6px
+}
+
+#menu {
+    display: none
+}
+
+#feed {
+    flex: 1;
+    overflow: auto;
+    padding: 24px
+}
+
+#wrap {
+    max-width: 820px;
+    margin: 0 auto
+}
+
+.row {
+    display: grid;
+    grid-template-columns: 52px 1fr;
+    gap: 8px;
+    margin-bottom: 18px
+}
+
+.who {
+    font: 500 13px/1.9 var(--mono)
+}
+
+.user .who {
+    color: var(--you)
+}
+
+.maya .who {
+    color: var(--maya)
+}
+
+.body {
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 8px
+}
+
+.user .body,
+.ans {
+    white-space: pre-wrap;
+    overflow-wrap: anywhere
+}
+
+.think {
+    border-left: 3px solid var(--think);
+    padding-left: 12px;
+    color: var(--mute)
+}
+
+.think summary {
+    cursor: pointer;
+    color: var(--think);
+    font-weight: 500
+}
+
+.think .tx {
+    white-space: pre-wrap;
+    font-style: italic;
+    margin-top: 4px
+}
+
+.tool {
+    border: 1px solid var(--line);
+    border-left: 3px solid var(--tool);
+    border-radius: 6px;
+    background: var(--panel);
+    overflow: hidden
+}
+
+.tool.fail {
+    border-left-color: var(--err)
+}
+
+.th {
+    display: flex;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 7px 12px;
+    font: 500 13px var(--mono)
+}
+
+.th .fn {
+    color: var(--tool)
+}
+
+.st {
+    color: var(--mute);
+    font-weight: 400
+}
+
+.fail .st {
+    color: var(--err)
+}
+
+.run .st::before {
+    content: "";
+    display: inline-block;
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: var(--tool);
+    margin-right: 6px;
+    animation: p 1s infinite
+}
+
+@keyframes p {
+    50% {
+        opacity: .25
+    }
+}
+
+@media(prefers-reduced-motion:reduce) {
+    .run .st::before {
+        animation: none
+    }
+}
+
+.tool pre {
+    margin: 0;
+    padding: 8px 12px;
+    background: var(--tint);
+    font: 12.5px/1.5 var(--mono);
+    white-space: pre-wrap;
+    overflow-wrap: anywhere;
+    max-height: 280px;
+    overflow: auto
+}
+
+.lbl,
+.tool summary {
+    font-size: 12px;
+    color: var(--mute);
+    padding: 6px 12px 3px
+}
+
+.tool summary {
+    cursor: pointer
+}
+
+.note {
+    color: var(--mute);
+    font-size: 13px;
+    margin: 0 0 18px 60px
+}
+
+.note.err {
+    color: var(--err)
+}
+
+.empty {
+    margin: 18vh auto 0;
+    text-align: center;
+    color: var(--mute);
+    max-width: 340px
+}
+
+form {
+    border-top: 1px solid var(--line);
+    background: var(--panel);
+    padding: 14px 24px
+}
+
+.box {
+    max-width: 820px;
+    margin: 0 auto;
+    display: flex;
+    gap: 10px;
+    align-items: flex-end
+}
+
+textarea {
+    flex: 1;
+    resize: none;
+    max-height: 180px;
+    font: inherit;
+    color: inherit;
+    background: var(--bg);
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    padding: 10px 12px
+}
+
+.send {
+    background: var(--maya);
+    color: var(--panel);
+    border: 0;
+    border-radius: 8px;
+    padding: 10px 18px;
+    font-weight: 500;
+    cursor: pointer
+}
+
+.send:disabled {
+    opacity: .5;
+    cursor: default
+}
+
+@media(max-width:760px) {
+    body {
+        grid-template-columns: 1fr
+    }
+
+    aside {
+        position: fixed;
+        inset: 0 20% 0 0;
+        z-index: 5;
+        transform: translateX(-100%);
+        transition: transform .2s
+    }
+
+    aside.open {
+        transform: none;
+        box-shadow: 0 0 0 100vmax rgba(0, 0, 0, .35)
+    }
+
+    #menu {
+        display: block
+    }
+
+    .row {
+        grid-template-columns: 1fr;
+        gap: 0
+    }
+
+    .note {
+        margin-left: 0
+    }
+
+    #feed,
+    form,
+    header {
+        padding-left: 14px;
+        padding-right: 14px
+    }
+}
