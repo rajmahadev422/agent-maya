@@ -1,33 +1,59 @@
+import json
+import urllib.request
+import urllib.parse
 import os
-from datetime import datetime
-from zoneinfo import ZoneInfo
-from random import randint
+from pathlib import Path
+from config import PROJECT_DIR
 
-def get_random_number(min_val: int = 0, max_val: int = 10) -> int:
-    """Returns a random integer between min_val and max_val (inclusive)."""
-    return randint(min_val, max_val)
+def get_project_structure(directory: str = str(PROJECT_DIR), max_depth: int = 3, ignore_dirs: list = []) -> str:
+    """Generate a Markdown tree representation of a project's files and folders.
+    
+    Args:
+        directory: The root directory to scan (defaults to project directory).
+        max_depth: Maximum folder depth to traverse (defaults to 3 to keep context concise).
+        ignore_dirs: Optional list of folder names to ignore (defaults to common cache/build dirs based on project such as python project, node ect).
+        
+    Returns:
+        A Markdown string containing a visual tree structure of the project.
+    """
+    if len(ignore_dirs) == 0:
+        ignore_dirs = [".git", "node_modules", "__pycache__", "venv", ".venv", "dist", "build", ".idea", ".vscode"]
+    else:
+        ignore_dirs = [ignore_dirs]
 
+    root_abs = os.path.abspath(directory)
+    root_name = os.path.basename(root_abs) or root_abs
+    
+    lines = [f"# Project Structure (`{root_name}`)\n", "```text"]
+    lines.append(f"{root_name}/")
 
-def get_current_datetime():
-    """Get current date, time and timezone in India."""
-    now = datetime.now(ZoneInfo("Asia/Kolkata"))
+    def build_tree(current_dir, prefix="", current_depth=1):
+        if current_depth > max_depth:
+            return
+        
+        try:
+            entries = sorted(os.listdir(current_dir))
+        except PermissionError:
+            return
 
-    return {
-        "date": now.strftime("%d %B %Y"),
-        "day": now.strftime("%A"),
-        "time": now.strftime("%I:%M:%S %p"),
-        "timezone": "Asia/Kolkata",
-        "iso_format": now.isoformat()
-    }
+        # Filter out ignored directories and hidden files/folders if needed
+        entries = [e for e in entries if e not in ignore_dirs and not e.startswith('.env')]
+        
+        for i, entry in enumerate(entries):
+            path = os.path.join(current_dir, entry)
+            is_dir = os.path.isdir(path)
+            
+            # Determine tree branch characters
+            is_last = (i == len(entries) - 1)
+            pointer = "└── " if is_last else "├── "
+            
+            lines.append(f"{prefix}{pointer}{entry}{'/' if is_dir else ''}")
+            
+            if is_dir:
+                extension = "    " if is_last else "│   "
+                build_tree(path, prefix + extension, current_depth + 1)
 
-
-def get_current_date():
-    """Get today's date."""
-    now = datetime.now(ZoneInfo("Asia/Kolkata"))
-    return now.strftime("%d %B %Y")
-
-
-def get_current_time():
-    """Get current time."""
-    now = datetime.now(ZoneInfo("Asia/Kolkata"))
-    return now.strftime("%I:%M:%S %p")
+    build_tree(directory, prefix="", current_depth=1)
+    lines.append("```")
+    
+    return "\n".join(lines)

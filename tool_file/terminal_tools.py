@@ -5,6 +5,13 @@ import subprocess
 def run_command(command: str, directory: str = './') -> str:
     """
     Execute a Windows CMD command and return its actual output.
+    
+    Args:
+    command: Command that is run.
+    directory: The root directory where command is to be run.
+    
+    Returns:
+        Results as string.
     """
     if not directory:
         directory = "./"

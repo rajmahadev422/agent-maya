@@ -12,8 +12,9 @@ from fastapi.staticfiles import StaticFiles
 
 from config import PROJECT_DIR, MAYA_DIR
 from utils.all_tools import available_functions, tools
+from tool_file.common_tools import open_url_in_browser
 
-MODEL = "qwen3:1.7b"
+MODEL = "qwen3:4b"
 MAX_STEPS = 5
 DATA_DIR = Path(MAYA_DIR) / "data"
 DATA_DIR.mkdir(exist_ok=True)
@@ -199,4 +200,5 @@ def send_message(cid: str, body: Msg):
 
 
 if __name__ == "__main__":
+    open_url_in_browser("http://127.0.0.1:4220")
     uvicorn.run("main:app", host="127.0.0.1", port=4220, reload=True)
