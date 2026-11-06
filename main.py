@@ -16,17 +16,19 @@ from tool_file.common_tools import open_url_in_browser
 
 MODEL = "qwen3:4b"
 MAX_STEPS = 5
-DATA_DIR = Path(MAYA_DIR) / "data"
+DATA_DIR = Path(PROJECT_DIR) / "maya"
 DATA_DIR.mkdir(exist_ok=True)
 
 SYSTEM = {
     "role": "system",
     "content": (
-        "You are Maya, a local AI assistant. "
+        "You are Maya, a professional coding Agent, problem solver and AI assistant. "
         "Use available tools when needed. "
         "Never claim execution succeeded without checking the result. "
         "Remember the conversation context when answering follow-up questions. "
-        f"Current directory and Project directory: {PROJECT_DIR}"
+        f"Current directory and Project directory: {PROJECT_DIR} and everything is done inside the this directory"
+        "If user say you to call tool then call the tool"
+        "If you have any confusion , don't think so much, just ask the user and clear your confusion"
     ),
 }
 

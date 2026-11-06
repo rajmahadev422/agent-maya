@@ -358,6 +358,31 @@ textarea {
     padding: 10px 12px
 }
 
+.mic {
+    background: none;
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    padding: 10px;
+    cursor: pointer;
+    display: grid;
+    place-items: center;
+    color: var(--mute)
+}
+
+.mic:hover {
+    background: var(--tint)
+}
+
+.mic.on {
+    color: var(--err);
+    border-color: var(--err)
+}
+
+.mic:disabled {
+    opacity: .5;
+    cursor: default
+}
+.mic[hidden]{display:none}
 .send {
     background: var(--maya);
     color: var(--panel);

@@ -6,7 +6,9 @@ from tool_file.file_tools import (
     read_file,
     write_file,
     update_file,
-    delete_file
+    delete_file,
+    insert_file_text,
+    replace_file_text
 )
 from tool_file.common_tools import (
     get_random_number,
@@ -27,6 +29,8 @@ available_functions = {
     "update_file": update_file,
     "delete_file": delete_file,
     "get_project_structure": get_project_structure,
+    "insert_file_text": insert_file_text,
+    "replace_file_text": replace_file_text
 }
 
 tools = [
@@ -40,4 +44,6 @@ tools = [
     update_file,
     delete_file,
     get_project_structure,
+    insert_file_text,
+    replace_file_text
 ]

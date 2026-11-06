@@ -129,6 +129,37 @@ async function send(text) {
     await refresh(); setTitle(); input.focus();
 }
 
+/* Voice transcribtion */
+const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+const mic = $('#mic');
+
+if (!SR) {
+  mic.onclick = () => note('This browser has no speech recognition. Use Chrome or Edge.', true);
+} else {
+  const rec = new SR();
+  rec.continuous = true;
+  rec.interimResults = true;
+  rec.lang = 'en-IN';
+  let base = '';
+
+  rec.onstart = () => mic.classList.add('on');
+  rec.onend = () => mic.classList.remove('on');
+  rec.onerror = e => note('Speech recognition error: ' + e.error, true);
+  rec.onresult = e => {
+    let text = '';
+    for (const r of e.results) text += r[0].transcript;
+    input.value = base + text;
+    input.oninput();
+  };
+
+  mic.onclick = () => {
+    try {
+      if (mic.classList.contains('on')) rec.stop();
+      else { base = input.value ? input.value + ' ' : ''; rec.start(); }
+    } catch (err) { note(String(err), true); }
+  };
+}
+
 /* ---------- wiring ---------- */
 $('#form').onsubmit = e => { e.preventDefault(); const t = input.value; input.value = ''; input.style.height = 'auto'; send(t); };
 input.onkeydown = e => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); $('#form').requestSubmit(); } };
