@@ -358,6 +358,30 @@ textarea {
     padding: 10px 12px
 }
 
+.think-btn {
+    background: none;
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    padding: 10px 12px;
+    cursor: pointer;
+    font: 500 13px var(--mono);
+    color: var(--mute)
+}
+
+.think-btn:hover {
+    background: var(--tint)
+}
+
+.think-btn[aria-pressed="true"] {
+    color: var(--think);
+    border-color: var(--think)
+}
+
+.think-btn:disabled {
+    opacity: .5;
+    cursor: default
+}
+
 .mic {
     background: none;
     border: 1px solid var(--line);
@@ -382,7 +406,11 @@ textarea {
     opacity: .5;
     cursor: default
 }
-.mic[hidden]{display:none}
+
+.mic[hidden] {
+    display: none
+}
+
 .send {
     background: var(--maya);
     color: var(--panel);

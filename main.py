@@ -2,11 +2,12 @@ import json
 import re
 from datetime import datetime
 from pathlib import Path
+from functools import lru_cache
 
 import uvicorn
 from fastapi import FastAPI, HTTPException
 from fastapi.responses import FileResponse, StreamingResponse
-from ollama import chat
+from ollama import chat, show
 from pydantic import BaseModel
 from fastapi.staticfiles import StaticFiles
 
@@ -14,28 +15,46 @@ from config import PROJECT_DIR, MAYA_DIR
 from utils.all_tools import available_functions, tools
 from tool_file.common_tools import open_url_in_browser
 
-MODEL = "qwen3:4b"
+MODEL = "qwen3:1.7b"
 MAX_STEPS = 5
 DATA_DIR = Path(PROJECT_DIR) / "maya"
+
 DATA_DIR.mkdir(exist_ok=True)
+
+SYSTEM_PROMPT = """You are an expert autonomous local coding and task-execution agent. Your core strength is executing complex development tasks meticulously, step by step.
+
+### Core Execution Protocol (Step-by-Step Workflow):
+1. **Analyze & Plan:** Break down the user's request into a logical sequence of micro-steps before taking action. Never attempt to solve a multi-file or complex task in a single blind move.
+2. **Use Tools When Needed:** 
+   - Do NOT use tools for simple coding questions, conceptual explanations, logic design, or writing standalone code snippets where workspace interaction is unnecessary.
+   - USE tools strictly when you need to inspect directory structures, read/write/modify local project files, execute terminal commands, or manage background processes on the user's machine.
+3. **Explore & Gather Context:** Before modifying or writing code in a project, use `find_file_location` or `search_files`. Always read existing target files using `read_file` to understand current syntax, imports, and style.
+4. **Execute Incrementally:** Perform one precise change or file operation at a time. Prefer targeted editing tools (`replace_file_text`, `insert_file_text`) over full overwrites (`update_file`, `write_file`) to minimize regression risks.
+5. **Iterate on Errors:** If a tool call returns an error or a test fails, analyze the exact error message, adjust your plan, and apply a corrected fix. Never repeat a failing action blindly.
+
+### Operational Rules:
+- Take one logical step at a time. Do not chain unrelated tool calls together in a single turn.
+- Keep your text explanations brief and direct. Let your tool outputs and code actions drive the execution.
+- Work strictly within the project workspace boundaries.
+"""
+
 
 SYSTEM = {
     "role": "system",
-    "content": (
-        "You are Maya, a professional coding Agent, problem solver and AI assistant. "
-        "Use available tools when needed. "
-        "Never claim execution succeeded without checking the result. "
-        "Remember the conversation context when answering follow-up questions. "
-        f"Current directory and Project directory: {PROJECT_DIR} and everything is done inside the this directory"
-        "If user say you to call tool then call the tool"
-        "If you have any confusion , don't think so much, just ask the user and clear your confusion"
-    ),
+    "content": SYSTEM_PROMPT
 }
 
 app = FastAPI()
 unsaved: dict[str, list] = {}  # new chats that have no file yet
 ID_RE = re.compile(r"^[\w\-]+$")
 THINK_RE = re.compile(r"<think>(.*?)</think>", re.S)
+
+@lru_cache(maxsize=None)
+def capabilities(model: str) -> list[str]:
+    try:
+        return list(show(model).capabilities or [])
+    except Exception:
+        return ["thinking", "tools"]
 
 
 def chat_path(cid: str) -> Path:
@@ -100,7 +119,7 @@ def index():
 
 @app.get("/api/info")
 def info():
-    return {"model": MODEL, "data_dir": PROJECT_DIR, "new_data": PROJECT_DIR}
+    return {"model": MODEL, "data_dir": PROJECT_DIR, "capabilities": capabilities(MODEL)}
 
 
 @app.get("/api/chats")
@@ -136,23 +155,28 @@ def get_chat(cid: str):
 
 class Msg(BaseModel):
     text: str
+    think: bool = True
 
 
 def ev(**kw) -> str:
     return json.dumps(kw, ensure_ascii=False, default=str) + "\n"
 
 
-def run_turn(cid: str, text: str):
+def run_turn(cid: str, text: str, think: bool = True):
     messages = load(cid)
     if not messages:
         messages.append(dict(SYSTEM))
     messages.append({"role": "user", "content": text})
     try:
+        caps = capabilities(MODEL)
+        use_think = think if "thinking" in caps else None
+        use_tools = tools if "tools" in caps else None
+        
         for _ in range(MAX_STEPS):
             yield ev(type="step")
             content, thinking, calls = "", "", []
 
-            for chunk in chat(model=MODEL, messages=messages, tools=tools, think=True, stream=True):
+            for chunk in chat(model=MODEL, messages=messages, tools=use_tools, think=use_think, stream=True):
                 m = chunk["message"]
                 if m.get("thinking"):
                     thinking += m["thinking"]
@@ -198,9 +222,9 @@ def run_turn(cid: str, text: str):
 @app.post("/api/chats/{cid}/message")
 def send_message(cid: str, body: Msg):
     load(cid)  # 404 early if the chat does not exist
-    return StreamingResponse(run_turn(cid, body.text), media_type="application/x-ndjson")
+    return StreamingResponse(run_turn(cid, body.text, body.think), media_type="application/x-ndjson")
 
 
 if __name__ == "__main__":
-    open_url_in_browser("http://127.0.0.1:4220")
-    uvicorn.run("main:app", host="127.0.0.1", port=4220, reload=True)
+    print("Server is live on: http://127.0.0.1:4220")
+    uvicorn.run("main:app", host="127.0.0.1", port=4220)

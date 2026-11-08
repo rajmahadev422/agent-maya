@@ -1,0 +1,329 @@
+[
+    {
+        "type": "function",
+        "function": {
+            "name": "get_random_number",
+            "description": "Returns a random integer between min_val and max_val (inclusive).",
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "min_val": {
+                        "type": "integer",
+                        "description": "Starting number",
+                        "default": 0
+                    },
+                    "max_val": {
+                        "type": "integer",
+                        "description": "Last number",
+                        "default": 10
+                    }
+                },
+                "required": []
+            }
+        }
+    },
+    {
+        "type": "function",
+        "function": {
+            "name": "get_current_datetime",
+            "description": "Get current date, time and timezone in India.",
+            "parameters": {
+                "type": "object",
+                "properties": {},
+                "required": []
+            }
+        }
+    },
+    {
+        "type": "function",
+        "function": {
+            "name": "get_current_date",
+            "description": "Get current date of India.",
+            "parameters": {
+                "type": "object",
+                "properties": {},
+                "required": []
+            }
+        }
+    },
+    {
+        "type": "function",
+        "function": {
+            "name": "get_current_time",
+            "description": "Get current time of India.",
+            "parameters": {
+                "type": "object",
+                "properties": {},
+                "required": []
+            }
+        }
+    },
+    {
+        "type": "function",
+        "function": {
+            "name": "open_url_in_browser",
+            "description": "Open a URL directly in the default web browser (like Chrome, Google, etc.) instead of extracting its content.",
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "url": {
+                        "type": "string",
+                        "description": "The web URL to open."
+                    }
+                },
+                "required": [
+                    "url"
+                ]
+            }
+        }
+    },
+    {
+        "type": "function",
+        "function": {
+            "name": "run_command",
+            "description": "Execute a Windows CMD command in the current directory and return its actual output.",
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "command": {
+                        "type": "string",
+                        "description": "The shell command that is run (e.g., 'npm install', 'python script.py')."
+                    },
+                    "directory": {
+                        "type": "string",
+                        "description": "The absolute directory where the command is to be run.",
+                        "default": "current directory"
+                    }
+                },
+                "required": [
+                    "command"
+                ]
+            }
+        }
+    },
+    {
+        "type": "function",
+        "function": {
+            "name": "read_file",
+            "description": "Read the contents of a file given its path.",
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "file_path": {
+                        "type": "string",
+                        "description": "Targeted file absolute path to read that file content."
+                    }
+                },
+                "required": [
+                    "file_path"
+                ]
+            }
+        }
+    },
+    {
+        "type": "function",
+        "function": {
+            "name": "write_file",
+            "description": "Write content to a file (creates parent directories, and creates or overwrites the file if it exists).",
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "file_path": {
+                        "type": "string",
+                        "description": "Targeted file path (absolute)."
+                    },
+                    "content": {
+                        "type": "string",
+                        "description": "The complete text or source code content to write into the file."
+                    }
+                },
+                "required": [
+                    "file_path",
+                    "content"
+                ]
+            }
+        }
+    },
+    {
+        "type": "function",
+        "function": {
+            "name": "delete_file",
+            "description": "Delete a file from the file system given its path.",
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "file_path": {
+                        "type": "string",
+                        "description": "Targeted file (absolute path)."
+                    }
+                },
+                "required": [
+                    "file_path"
+                ]
+            }
+        }
+    },
+    {
+        "type": "function",
+        "function": {
+            "name": "update_file",
+            "description": "Replace the entire content of an existing file safely within the project directory.",
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "file_path": {
+                        "type": "string",
+                        "description": "Targeted file path (absolute)."
+                    },
+                    "content": {
+                        "type": "string",
+                        "description": "New complete file content to write into the file."
+                    }
+                },
+                "required": [
+                    "file_path",
+                    "content"
+                ]
+            }
+        }
+    },
+    {
+        "type": "function",
+        "function": {
+            "name": "insert_file_text",
+            "description": "Insert text into an existing file at the beginning, end, or relative to a specific reference text anchor.",
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "file_path": {
+                        "type": "string",
+                        "description": "Targeted file path (absolute)."
+                    },
+                    "text": {
+                        "type": "string",
+                        "description": "The text content to insert."
+                    },
+                    "position": {
+                        "type": "string",
+                        "description": "Position to insert text: 'beginning', 'end', 'before', or 'after'.",
+                        "enum": [
+                            "beginning",
+                            "end",
+                            "before",
+                            "after"
+                        ]
+                    },
+                    "reference_text": {
+                        "type": "string",
+                        "description": "Existing unique text used as an insertion anchor (required when position is 'before' or 'after')."
+                    }
+                },
+                "required": [
+                    "file_path",
+                    "text",
+                    "position"
+                ]
+            }
+        }
+    },
+    {
+        "type": "function",
+        "function": {
+            "name": "replace_file_text",
+            "description": "Replace specific text inside an existing file safely, with checks for uniqueness and ambiguity.",
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "file_path": {
+                        "type": "string",
+                        "description": "Targeted file path (absolute)."
+                    },
+                    "old_text": {
+                        "type": "string",
+                        "description": "Existing unique text snippet to find and replace."
+                    },
+                    "new_text": {
+                        "type": "string",
+                        "description": "The replacement text snippet."
+                    },
+                    "replace_all": {
+                        "type": "boolean",
+                        "description": "If true, replaces all occurrences of old_text. If false, errors if multiple matches exist unless old_text is unique. Defaults to false.",
+                        "default": false
+                    }
+                },
+                "required": [
+                    "file_path",
+                    "old_text",
+                    "new_text"
+                ]
+            }
+        }
+    },
+    {
+        "type": "function",
+        "function": {
+            "name": "find_file_location",
+            "description": "Find all locations of a file by its name recursively in the project directory.",
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "file_name": {
+                        "type": "string",
+                        "description": "Name of the file to search for (e.g., 'server.js', 'auth.py')."
+                    },
+                    "case_sensitive": {
+                        "type": "boolean",
+                        "description": "Whether filename matching is case-sensitive. Defaults to false.",
+                        "default": false
+                    }
+                },
+                "required": [
+                    "file_name"
+                ]
+            }
+        }
+    },
+    {
+        "type": "function",
+        "function": {
+            "name": "start_server",
+            "description": "Start a long-running server or process in the background without blocking execution.",
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "command": {
+                        "type": "string",
+                        "description": "The command to run the server (e.g., 'node server.js', 'python app.py')."
+                    },
+                    "directory": {
+                        "type": "string",
+                        "description": "The working directory where the server should run. Defaults to './'."
+                    }
+                },
+                "required": [
+                    "command"
+                ]
+            }
+        }
+    },
+    {
+        "type": "function",
+        "function": {
+            "name": "stop_server",
+            "description": "Terminate a running background server or process using its process ID.",
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "proc_id": {
+                        "type": "string",
+                        "description": "The process ID returned when starting the server (e.g., 'proc_0')."
+                    }
+                },
+                "required": [
+                    "proc_id"
+                ]
+            }
+        }
+    }
+]

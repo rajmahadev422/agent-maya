@@ -1,6 +1,31 @@
 
 const $ = s => document.querySelector(s);
 const wrap = $('#wrap'), feed = $('#feed'), list = $('#list'), input = $('#in'), sendBtn = $('#send');
+
+/* thinking button */
+let think = localStorage.getItem('think') !== 'off', canThink = true;
+const thinkBtn = $('#think');
+function renderThink() {
+    if (!canThink) {
+        thinkBtn.disabled = true;
+        thinkBtn.setAttribute('aria-pressed', 'false');
+        thinkBtn.textContent = 'Think: n/a';
+        thinkBtn.title = 'This model has no thinking mode';
+        return;
+    }
+    thinkBtn.disabled = false;
+    thinkBtn.setAttribute('aria-pressed', think);
+    thinkBtn.textContent = 'Think: ' + (think ? 'on' : 'off');
+}
+thinkBtn.onclick = () => {
+    think = !think;
+    localStorage.setItem('think', think ? 'on' : 'off');
+    renderThink();
+    console.log(think)
+};
+renderThink();
+
+/* chats */
 let chats = [], current = null, busy = false, stick = true;
 
 const el = (tag, cls, text) => { const e = document.createElement(tag); if (cls) e.className = cls; if (text != null) e.textContent = text; return e; };
@@ -105,7 +130,7 @@ async function send(text) {
         let s = null; const S = () => s || (s = asst());
 
         const res = await fetch(`/api/chats/${current}/message`, {
-            method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ text })
+            method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ text, think })
         });
         if (!res.ok) throw new Error(await res.text());
         const reader = res.body.getReader(), dec = new TextDecoder(); let buf = '';
@@ -134,30 +159,30 @@ const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
 const mic = $('#mic');
 
 if (!SR) {
-  mic.onclick = () => note('This browser has no speech recognition. Use Chrome or Edge.', true);
+    mic.onclick = () => note('This browser has no speech recognition. Use Chrome or Edge.', true);
 } else {
-  const rec = new SR();
-  rec.continuous = true;
-  rec.interimResults = true;
-  rec.lang = 'en-IN';
-  let base = '';
+    const rec = new SR();
+    rec.continuous = true;
+    rec.interimResults = true;
+    rec.lang = 'en-IN';
+    let base = '';
 
-  rec.onstart = () => mic.classList.add('on');
-  rec.onend = () => mic.classList.remove('on');
-  rec.onerror = e => note('Speech recognition error: ' + e.error, true);
-  rec.onresult = e => {
-    let text = '';
-    for (const r of e.results) text += r[0].transcript;
-    input.value = base + text;
-    input.oninput();
-  };
+    rec.onstart = () => mic.classList.add('on');
+    rec.onend = () => mic.classList.remove('on');
+    rec.onerror = e => note('Speech recognition error: ' + e.error, true);
+    rec.onresult = e => {
+        let text = '';
+        for (const r of e.results) text += r[0].transcript;
+        input.value = base + text;
+        input.oninput();
+    };
 
-  mic.onclick = () => {
-    try {
-      if (mic.classList.contains('on')) rec.stop();
-      else { base = input.value ? input.value + ' ' : ''; rec.start(); }
-    } catch (err) { note(String(err), true); }
-  };
+    mic.onclick = () => {
+        try {
+            if (mic.classList.contains('on')) rec.stop();
+            else { base = input.value ? input.value + ' ' : ''; rec.start(); }
+        } catch (err) { note(String(err), true); }
+    };
 }
 
 /* ---------- wiring ---------- */
@@ -172,6 +197,7 @@ $('#menu').onclick = () => $('#side').classList.toggle('open');
     const i = await api('/api/info');
     $('#model').textContent = i.model;
     $('#dir').textContent = i.data_dir;
-    console.log(i);
+    canThink = i.capabilities.includes('thinking');
+    renderThink()
     await refresh();
 })();

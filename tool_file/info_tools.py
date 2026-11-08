@@ -1,59 +1,48 @@
-import json
-import urllib.request
-import urllib.parse
 import os
 from pathlib import Path
 from config import PROJECT_DIR
 
-def get_project_structure(directory: str = str(PROJECT_DIR), max_depth: int = 3, ignore_dirs: list = []) -> str:
-    """Generate a Markdown tree representation of a project's files and folders.
-    
-    Args:
-        directory: The root directory to scan (defaults to project directory).
-        max_depth: Maximum folder depth to traverse (defaults to 3 to keep context concise).
-        ignore_dirs: Optional list of folder names to ignore (defaults to common cache/build dirs based on project such as python project, node ect).
-        
-    Returns:
-        A Markdown string containing a visual tree structure of the project.
-    """
-    if len(ignore_dirs) == 0:
-        ignore_dirs = [".git", "node_modules", "__pycache__", "venv", ".venv", "dist", "build", ".idea", ".vscode"]
+def list_directory(directory: str = str(PROJECT_DIR), recursive: bool = True) -> str:
+  """List files and folders in a specified directory to understand project structure.
+
+  Args:
+      directory_path: The target directory path to list. Defaults to './'.
+      recursive: If true, lists contents recursively (up to a safe depth).
+
+  Returns:
+      A formatted string listing directories and files.
+  """
+  try:
+    target_dir = Path(directory).resolve()
+
+    if not target_dir.is_dir():
+      return f"Error: Directory not found or is not a directory: {directory}"
+
+    entries = []
+    not_include = ["node_modules", "venv", ".venv", "__pycache__"]
+    if recursive:
+      for path in target_dir.rglob("*"):
+        # Skip hidden files/folders like .git or node_modules to save context
+        if any(
+            part.startswith(".") or part in not_include
+            for part in path.parts
+        ):
+          continue
+        rel_path = path.relative_to(target_dir)
+        prefix = "[DIR]  " if path.is_dir() else "[FILE] "
+        entries.append(f"{prefix}{rel_path}")
     else:
-        ignore_dirs = [ignore_dirs]
+      for item in sorted(target_dir.iterdir()):
+        if item.name.startswith(".") or item.name == "node_modules":
+          continue
+        prefix = "[DIR]  " if item.is_dir() else "[FILE] "
+        entries.append(f"{prefix}{item.name}")
 
-    root_abs = os.path.abspath(directory)
-    root_name = os.path.basename(root_abs) or root_abs
-    
-    lines = [f"# Project Structure (`{root_name}`)\n", "```text"]
-    lines.append(f"{root_name}/")
+    if not entries:
+      return "Directory is empty."
 
-    def build_tree(current_dir, prefix="", current_depth=1):
-        if current_depth > max_depth:
-            return
-        
-        try:
-            entries = sorted(os.listdir(current_dir))
-        except PermissionError:
-            return
+    return f"Contents of {target_dir}:\n" + "\n".join(entries[:100])
 
-        # Filter out ignored directories and hidden files/folders if needed
-        entries = [e for e in entries if e not in ignore_dirs and not e.startswith('.env')]
-        
-        for i, entry in enumerate(entries):
-            path = os.path.join(current_dir, entry)
-            is_dir = os.path.isdir(path)
-            
-            # Determine tree branch characters
-            is_last = (i == len(entries) - 1)
-            pointer = "└── " if is_last else "├── "
-            
-            lines.append(f"{prefix}{pointer}{entry}{'/' if is_dir else ''}")
-            
-            if is_dir:
-                extension = "    " if is_last else "│   "
-                build_tree(path, prefix + extension, current_depth + 1)
+  except Exception as e:
+     return f"Error listing directory: {str(e)}"
 
-    build_tree(directory, prefix="", current_depth=1)
-    lines.append("```")
-    
-    return "\n".join(lines)

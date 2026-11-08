@@ -17,8 +17,9 @@ env/
 
 # Maya chat history and data
 data/
-*.json
+maya/
 
+test.py
 # IDE
 .vscode/
 .idea/

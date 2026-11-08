@@ -113,18 +113,14 @@ def delete_file(file_path: str) -> str:
     
 
 
-def get_safe_path(file_path: str, directory: str = "./") -> Path:
+def get_safe_path(file_path: str) -> Path:
     """Resolve file path inside the working directory."""
 
-    base = Path(directory or "./").resolve()
     target = Path(file_path)
-
-    if not target.is_absolute():
-        target = base / target
 
     target = target.resolve()
 
-    if not target.is_relative_to(base):
+    if not target.is_relative_to(PROJECT_DIR):
         raise PermissionError("Access denied: Outside working directory.")
 
     return target
@@ -133,7 +129,6 @@ def get_safe_path(file_path: str, directory: str = "./") -> Path:
 def update_file(
     file_path: str,
     content: str,
-    directory: str = "./"
 ) -> str:
     """
     Replace the entire content of an existing file.
@@ -141,14 +136,13 @@ def update_file(
     Args:
         file_path: Targeted file absolute path.
         content: New complete file content.
-        directory: Project working directory.
 
     Returns:
         Update status.
     """
 
     try:
-        path = get_safe_path(file_path, directory)
+        path = get_safe_path(file_path)
 
         if not path.is_file():
             return f"Error: File not found: {file_path}"
@@ -165,7 +159,6 @@ def insert_file_text(
     file_path: str,
     text: str,
     position: str,
-    directory: str = "./",
     reference_text: str = ""
 ) -> str:
     """
@@ -183,7 +176,7 @@ def insert_file_text(
     """
 
     try:
-        path = get_safe_path(file_path, directory)
+        path = get_safe_path(file_path)
 
         if not path.is_file():
             return f"Error: File not found: {file_path}"
@@ -235,7 +228,6 @@ def replace_file_text(
     file_path: str,
     old_text: str,
     new_text: str,
-    directory: str = "./",
     replace_all: bool = False
 ) -> str:
     """
@@ -245,7 +237,6 @@ def replace_file_text(
         file_path: Targeted file absolute path.
         old_text: Existing text to find.
         new_text: Replacement text.
-        directory: Project working directory.
         replace_all: Replace all occurrences if True.
 
     Returns:
@@ -253,7 +244,7 @@ def replace_file_text(
     """
 
     try:
-        path = get_safe_path(file_path, directory)
+        path = get_safe_path(file_path)
 
         if not path.is_file():
             return f"Error: File not found: {file_path}"
