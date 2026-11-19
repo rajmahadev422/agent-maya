@@ -1,5 +1,5 @@
 import os
-
+import json
 
 MODEL = os.environ.get("AGENT_MODEL", "gemma4:e4b")      # must support tool calling
 OLLAMA_URL = os.environ.get("OLLAMA_URL", "http://localhost:11434/api/chat")
@@ -15,4 +15,11 @@ BLOCKED = ("sudo", "rm -rf /", "rm -rf ~", "mkfs", ":(){", "shutdown", "reboot",
 DIM, CYAN, YELLOW, GREEN, RED, RESET = (
     "\033[2m", "\033[36m", "\033[33m", "\033[32m", "\033[31m", "\033[0m")
 
-SESSION_FILE = os.path.abspath("data/chats.json")   # outside workspace/ on purpose
+
+SESSION_FILE = os.path.abspath("maya/chats.json")
+
+os.makedirs(os.path.dirname(SESSION_FILE), exist_ok=True)
+
+if not os.path.exists(SESSION_FILE):
+    with open(SESSION_FILE, "w", encoding="utf-8") as f:
+        json.dump({}, f, indent=4)
