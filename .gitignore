@@ -18,6 +18,9 @@ env/
 # Maya chat history and data
 data/
 maya/
+workspace
+workspace/*
+chats.json
 
 test.py
 # IDE
